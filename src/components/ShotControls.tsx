@@ -1,0 +1,118 @@
+import { useState, useCallback } from "react";
+import { ShotParams, Vec2 } from "../types";
+
+interface Props {
+  aimAngle: number | null;
+  onShoot: (params: ShotParams) => void;
+  disabled: boolean;
+}
+
+export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
+  const [power, setPower] = useState(0.5);
+  const [spin, setSpin] = useState<Vec2>({ x: 0, y: 0 });
+
+  const handleShoot = useCallback(() => {
+    if (aimAngle === null || disabled) return;
+    onShoot({ angle: aimAngle, power, spin });
+  }, [aimAngle, power, spin, onShoot, disabled]);
+
+  const handleSpinClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const x = ((e.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = ((e.clientY - rect.top) / rect.height) * 2 - 1;
+    setSpin({
+      x: Math.max(-1, Math.min(1, x)),
+      y: Math.max(-1, Math.min(1, y)),
+    });
+  };
+
+  const resetSpin = () => setSpin({ x: 0, y: 0 });
+
+  return (
+    <div className="flex flex-col gap-4 bg-gray-900/80 rounded-xl p-4 backdrop-blur-sm min-w-[140px]">
+      {/* Power */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs text-gray-400 uppercase tracking-wider">
+          강도
+        </label>
+        <input
+          type="range"
+          min={0.1}
+          max={1}
+          step={0.05}
+          value={power}
+          onChange={(e) => setPower(parseFloat(e.target.value))}
+          className="accent-blue-500 w-full"
+        />
+        <div className="flex justify-between text-xs text-gray-500">
+          <span>약</span>
+          <span className="text-white font-mono">
+            {Math.round(power * 100)}%
+          </span>
+          <span>강</span>
+        </div>
+      </div>
+
+      {/* Spin Pad (타점) */}
+      <div className="flex flex-col gap-1">
+        <div className="flex justify-between items-center">
+          <label className="text-xs text-gray-400 uppercase tracking-wider">
+            타점
+          </label>
+          <button
+            onClick={resetSpin}
+            className="text-[10px] text-gray-500 hover:text-white"
+          >
+            리셋
+          </button>
+        </div>
+        <div
+          onClick={handleSpinClick}
+          className="relative w-[80px] h-[80px] mx-auto cursor-crosshair"
+        >
+          {/* Ball circle */}
+          <div className="absolute inset-0 rounded-full bg-gray-200 border-2 border-gray-400 overflow-hidden">
+            {/* Crosshair */}
+            <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-400/30" />
+            <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-400/30" />
+          </div>
+          {/* Spin indicator dot */}
+          <div
+            className="absolute w-3 h-3 bg-red-500 rounded-full border border-red-300 shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100"
+            style={{
+              left: `${50 + spin.x * 40}%`,
+              top: `${50 + spin.y * 40}%`,
+            }}
+          />
+        </div>
+        <div className="text-center text-[10px] text-gray-500 mt-1">
+          {spin.x === 0 && spin.y === 0
+            ? "무회전"
+            : `${spin.y < -0.2 ? "밀어" : spin.y > 0.2 ? "끌어" : ""}${
+                spin.x < -0.2 ? " 좌" : spin.x > 0.2 ? " 우" : ""
+              }`.trim() || "약간"}
+        </div>
+      </div>
+
+      {/* Shoot button */}
+      <button
+        onClick={handleShoot}
+        disabled={aimAngle === null || disabled}
+        className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:opacity-50
+          text-white font-bold py-3 px-4 rounded-lg text-sm transition-colors
+          active:scale-95 transform"
+      >
+        {aimAngle === null ? "방향을 조준하세요" : "샷!"}
+      </button>
+
+      {/* Help */}
+      {aimAngle === null && (
+        <p className="text-[10px] text-gray-500 text-center leading-tight">
+          수구(흰공)를 드래그하여
+          <br />
+          방향을 조준하세요
+        </p>
+      )}
+    </div>
+  );
+}
