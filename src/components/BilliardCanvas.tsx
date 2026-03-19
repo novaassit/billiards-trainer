@@ -305,15 +305,16 @@ export default function BilliardCanvas({
     if (!canvas) return;
     const ctx = canvas.getContext("2d")!;
 
+    const showIdeal = phase === "result" || (idealPath && idealPath.length > 0);
     draw(
       ctx,
       balls,
       phase === "aiming",
       phase === "result",
-      phase === "result",
+      !!showIdeal,
       simulationResult?.cuePath
     );
-  }, [phase, balls, aimAngle, draw, simulationResult]);
+  }, [phase, balls, aimAngle, draw, simulationResult, idealPath]);
 
   // Handle resize
   useEffect(() => {

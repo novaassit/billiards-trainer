@@ -29,9 +29,10 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
   const resetSpin = () => setSpin({ x: 0, y: 0 });
 
   return (
-    <div className="flex flex-col gap-4 bg-gray-900/80 rounded-xl p-4 backdrop-blur-sm min-w-[140px]">
+    <div className="bg-gray-900/80 rounded-xl p-3 md:p-4 backdrop-blur-sm
+      flex flex-row md:flex-col items-center md:items-stretch gap-3 md:gap-4 md:min-w-[140px]">
       {/* Power */}
-      <div className="flex flex-col gap-1">
+      <div className="flex flex-col gap-1 flex-1 md:flex-none min-w-0">
         <label className="text-xs text-gray-400 uppercase tracking-wider">
           강도
         </label>
@@ -54,8 +55,8 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
       </div>
 
       {/* Spin Pad (타점) */}
-      <div className="flex flex-col gap-1">
-        <div className="flex justify-between items-center">
+      <div className="flex flex-col gap-1 items-center">
+        <div className="flex gap-2 items-center">
           <label className="text-xs text-gray-400 uppercase tracking-wider">
             타점
           </label>
@@ -68,15 +69,12 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
         </div>
         <div
           onClick={handleSpinClick}
-          className="relative w-[80px] h-[80px] mx-auto cursor-crosshair"
+          className="relative w-[60px] h-[60px] md:w-[80px] md:h-[80px] cursor-crosshair"
         >
-          {/* Ball circle */}
           <div className="absolute inset-0 rounded-full bg-gray-200 border-2 border-gray-400 overflow-hidden">
-            {/* Crosshair */}
             <div className="absolute left-1/2 top-0 bottom-0 w-px bg-gray-400/30" />
             <div className="absolute top-1/2 left-0 right-0 h-px bg-gray-400/30" />
           </div>
-          {/* Spin indicator dot */}
           <div
             className="absolute w-3 h-3 bg-red-500 rounded-full border border-red-300 shadow-lg transform -translate-x-1/2 -translate-y-1/2 transition-all duration-100"
             style={{
@@ -85,7 +83,7 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
             }}
           />
         </div>
-        <div className="text-center text-[10px] text-gray-500 mt-1">
+        <div className="text-center text-[10px] text-gray-500">
           {spin.x === 0 && spin.y === 0
             ? "무회전"
             : `${spin.y < -0.2 ? "밀어" : spin.y > 0.2 ? "끌어" : ""}${
@@ -99,15 +97,15 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
         onClick={handleShoot}
         disabled={aimAngle === null || disabled}
         className="bg-green-600 hover:bg-green-500 disabled:bg-gray-700 disabled:opacity-50
-          text-white font-bold py-3 px-4 rounded-lg text-sm transition-colors
-          active:scale-95 transform"
+          text-white font-bold py-3 px-4 md:px-4 rounded-lg text-sm transition-colors
+          active:scale-95 transform whitespace-nowrap"
       >
-        {aimAngle === null ? "방향을 조준하세요" : "샷!"}
+        {aimAngle === null ? "조준" : "샷!"}
       </button>
 
-      {/* Help */}
+      {/* Help - desktop only */}
       {aimAngle === null && (
-        <p className="text-[10px] text-gray-500 text-center leading-tight">
+        <p className="hidden md:block text-[10px] text-gray-500 text-center leading-tight">
           수구(흰공)를 드래그하여
           <br />
           방향을 조준하세요

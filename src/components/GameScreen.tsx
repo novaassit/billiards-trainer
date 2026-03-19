@@ -22,6 +22,7 @@ export default function GameScreen() {
 
   const addScore = useProgressStore((s) => s.addScore);
   const [showResult, setShowResult] = useState(false);
+  const [showAnswer, setShowAnswer] = useState(false);
 
   const handleShoot = useCallback(
     (params: ShotParams) => {
@@ -49,7 +50,12 @@ export default function GameScreen() {
 
   const handleRetry = () => {
     setShowResult(false);
+    setShowAnswer(false);
     retryProblem();
+  };
+
+  const handleToggleAnswer = () => {
+    setShowAnswer((prev) => !prev);
   };
 
   if (!currentProblem) return null;
@@ -77,31 +83,43 @@ export default function GameScreen() {
             {currentProblem.description}
           </div>
         </div>
-        <div className="text-xs text-gray-500">시도: {attempts}</div>
+        <div className="flex items-center gap-3">
+          <button
+            onClick={handleToggleAnswer}
+            className={`text-xs px-2 py-1 rounded ${
+              showAnswer
+                ? "bg-yellow-600 text-white"
+                : "bg-gray-700 text-gray-300 hover:bg-gray-600"
+            }`}
+          >
+            {showAnswer ? "정답 숨기기" : "정답 보기"}
+          </button>
+          <span className="text-xs text-gray-500">시도: {attempts}</span>
+        </div>
       </div>
 
-      {/* Main game area */}
-      <div className="flex-1 flex gap-4 p-4 min-h-0">
+      {/* Main game area - responsive: column on mobile, row on desktop */}
+      <div className="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 p-2 md:p-4 min-h-0">
         <BilliardCanvas
           balls={balls}
           aimAngle={aimAngle}
           simulationResult={simulationResult}
-          idealPath={showResult ? currentProblem.idealPath : null}
+          idealPath={showResult || showAnswer ? currentProblem.idealPath : null}
           phase={canvasPhase}
           onAimChange={setAimAngle}
           onSimulationComplete={handleSimulationComplete}
         />
 
-        {/* Side panel */}
-        <div className="flex flex-col gap-4">
-          {!showResult && (
+        {/* Controls panel - horizontal on mobile, vertical on desktop */}
+        {!showResult && (
+          <div className="shrink-0">
             <ShotControls
               aimAngle={aimAngle}
               onShoot={handleShoot}
               disabled={phase === "simulating"}
             />
-          )}
-        </div>
+          </div>
+        )}
       </div>
 
       {/* Result overlay */}
