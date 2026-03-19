@@ -98,6 +98,30 @@ export default function GameScreen() {
         </div>
       </div>
 
+      {/* Answer info panel */}
+      {showAnswer && currentProblem.idealShot && (
+        <div className="flex items-center justify-center gap-6 px-4 py-2 bg-yellow-900/30 text-sm">
+          <span className="text-yellow-400 font-semibold">정답:</span>
+          <span className="text-gray-300">
+            강도 <span className="text-white font-mono">{Math.round(currentProblem.idealShot.power * 100)}%</span>
+          </span>
+          <span className="text-gray-300">
+            타점{" "}
+            {currentProblem.idealShot.spin.x === 0 && currentProblem.idealShot.spin.y === 0
+              ? <span className="text-white">무회전</span>
+              : <span className="text-white font-mono">
+                  ({currentProblem.idealShot.spin.x > 0 ? "우" : currentProblem.idealShot.spin.x < 0 ? "좌" : "중"}
+                  {" "}
+                  {currentProblem.idealShot.spin.y > 0 ? "끌어" : currentProblem.idealShot.spin.y < 0 ? "밀어" : "중"})
+                </span>
+            }
+          </span>
+          <span className="text-gray-300">
+            각도 <span className="text-white font-mono">{Math.round((currentProblem.idealShot.angle * 180) / Math.PI)}°</span>
+          </span>
+        </div>
+      )}
+
       {/* Main game area - responsive: column on mobile, row on desktop */}
       <div className="flex-1 flex flex-col md:flex-row gap-2 md:gap-4 p-2 md:p-4 min-h-0">
         <BilliardCanvas
@@ -116,7 +140,10 @@ export default function GameScreen() {
             <ShotControls
               aimAngle={aimAngle}
               onShoot={handleShoot}
+              onAimChange={setAimAngle}
               disabled={phase === "simulating"}
+              idealShot={currentProblem.idealShot}
+              showAnswer={showAnswer}
             />
           </div>
         )}

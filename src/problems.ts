@@ -267,7 +267,7 @@ function generateProblemForLevel(
     if (!result) continue;
 
     // Simplify path for display
-    const simplePath = simplifyPath(result.path, 5);
+    const simplePath = simplifyPath(result.path);
 
     return {
       id: `lv${level}_${String(index + 1).padStart(3, "0")}`,
@@ -285,14 +285,30 @@ function generateProblemForLevel(
   return null;
 }
 
-function simplifyPath(path: Vec2[], every: number): Vec2[] {
-  const result: Vec2[] = [];
-  for (let i = 0; i < path.length; i += every) {
-    result.push(path[i]);
+function simplifyPath(path: Vec2[]): Vec2[] {
+  if (path.length < 3) return [...path];
+
+  // Keep points where direction changes significantly (cushion contacts)
+  const result: Vec2[] = [path[0]];
+  const threshold = 0.15; // angle change threshold in radians
+
+  for (let i = 1; i < path.length - 1; i++) {
+    const prev = path[i - 1];
+    const curr = path[i];
+    const next = path[i + 1];
+
+    const angle1 = Math.atan2(curr.y - prev.y, curr.x - prev.x);
+    const angle2 = Math.atan2(next.y - curr.y, next.x - curr.x);
+    let diff = Math.abs(angle2 - angle1);
+    if (diff > Math.PI) diff = 2 * Math.PI - diff;
+
+    // Keep if direction changes (cushion hit) or every 10th point for smoothness
+    if (diff > threshold || i % 10 === 0) {
+      result.push(curr);
+    }
   }
-  if (result[result.length - 1] !== path[path.length - 1]) {
-    result.push(path[path.length - 1]);
-  }
+
+  result.push(path[path.length - 1]);
   return result;
 }
 

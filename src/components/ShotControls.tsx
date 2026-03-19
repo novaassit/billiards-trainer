@@ -4,12 +4,22 @@ import { ShotParams, Vec2 } from "../types";
 interface Props {
   aimAngle: number | null;
   onShoot: (params: ShotParams) => void;
+  onAimChange?: (angle: number) => void;
   disabled: boolean;
+  idealShot?: ShotParams | null;
+  showAnswer?: boolean;
 }
 
-export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
+export default function ShotControls({ aimAngle, onShoot, onAimChange, disabled, idealShot, showAnswer }: Props) {
   const [power, setPower] = useState(0.5);
   const [spin, setSpin] = useState<Vec2>({ x: 0, y: 0 });
+
+  const applyAnswer = useCallback(() => {
+    if (!idealShot || !onAimChange) return;
+    onAimChange(idealShot.angle);
+    setPower(idealShot.power);
+    setSpin({ ...idealShot.spin });
+  }, [idealShot, onAimChange]);
 
   const handleShoot = useCallback(() => {
     if (aimAngle === null || disabled) return;
@@ -103,8 +113,18 @@ export default function ShotControls({ aimAngle, onShoot, disabled }: Props) {
         {aimAngle === null ? "조준" : "샷!"}
       </button>
 
+      {/* Apply answer button */}
+      {showAnswer && idealShot && (
+        <button
+          onClick={applyAnswer}
+          className="bg-yellow-600 hover:bg-yellow-500 text-white text-xs py-2 px-3 rounded-lg transition-colors whitespace-nowrap"
+        >
+          정답 적용
+        </button>
+      )}
+
       {/* Help - desktop only */}
-      {aimAngle === null && (
+      {aimAngle === null && !showAnswer && (
         <p className="hidden md:block text-[10px] text-gray-500 text-center leading-tight">
           수구(흰공)를 드래그하여
           <br />
